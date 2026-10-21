@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Casino - Ultimate Shining Roulette</title>
+    <style>
+        :root {
+            --glass-bg: rgba(15, 15, 25, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --accent-glow: #d4af37; /* Gold casino theme */
+            --cyan-glow: #00f3ff;
+            --neon-green: #00ff88;
+            --neon-pink: #ff007f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #04040a;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Moving Background Lights */
+        .bg-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #1f4068, #162447, #d4af37);
+            filter: blur(130px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.45;
+            animation: moveLight 12s infinite alternate ease-in-out;
+        }
+
+        .bg-glow:nth-child(2) {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #4e31aa, #ff007f, #00f3ff);
+            animation: moveLight2 16s infinite alternate ease-in-out;
+            right: -120px;
+            bottom: -120px;
+        }
+
+        @keyframes moveLight {
+            0% { transform: translate(-50px, -50px) scale(1); }
+            100% { transform: translate(450px, 300px) scale(1.25); }
+        }
+
+        @keyframes moveLight2 {
+            0% { transform: translate(100px, 100px) scale(1.1); }
+            100% { transform: translate(-400px, -250px) scale(0.85); }
+        }
+
+        /* Glassmorphism Common Styles */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::after, .interactive-btn::after, .chip::after, .wheel-container::after, .stat-metric-card::after, .chart-container::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.35) 50%,
+                transparent 60%
+            );
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .glass-panel:hover::after, .interactive-btn:hover::after, .chip:hover::after, .wheel-container:hover::after, .stat-metric-card:hover::after, .chart-container:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+
+        .shine-burst::after {
+            transform: rotate(45deg) translateX(100%) !important;
+            transition: transform 0.4s ease-out;
+            background: linear-gradient(
+                45deg,
+                transparent 20%,
+                rgba(255, 255, 255, 0.9) 50%,
+                transparent 80%
+            );
+        }
+
+        .interactive-btn {
+            background: linear-gradient(135deg, #d4af37, #aa820a);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: #000;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .interactive-btn:hover {
+            background: linear-gradient(135deg, #f3d060, #d4af37);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .interactive-btn:active {
+            transform: translateY(1px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-card {
+            min-width: 170px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        /* Layout Structure */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            width: 100%;
+            max-width: 1250px;
+        }
+
+        @media (max-width: 900px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Shining Roulette Wheel Arena with Pointer Arrow */
+        .wheel-container-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .pointer-arrow {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 26px solid #ff3333;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px #ff0000);
+            animation: arrowBounce 1.5s infinite ease-in-out;
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-4px); }
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            padding: 5px;
+            background: radial-gradient(circle, rgba(212,175,55,0.3) 0%, rgba(0,0,0,0.85) 80%);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(212, 175, 55, 0.7);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .wheel-container.spinning-glow {
+            box-shadow: 0 0 50px var(--cyan-glow), 0 0 90px rgba(212, 175, 55, 0.9), inset 0 0 30px var(--cyan-glow);
+        }
+
+        #roulette-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #d4af37;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+        }
+
+        .wheel-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 34px;
+            height: 34px;
+            background: radial-gradient(circle, #ffffff 0%, #d4af37 60%, #443000 100%);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Authentic Betting Table Layout */
+        .table-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .betting-grid {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 5px;
+            width: 100%;
+            background: rgba(0, 70, 0, 0.55);
+            border: 2px solid #006000;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.7);
+        }
+
+        .board-cell {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 12px 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .board-cell.red { background-color: rgba(190, 20, 20, 0.8); }
+        .board-cell.black { background-color: rgba(20, 20, 20, 0.92); }
+        .board-cell.green { background-color: rgba(10, 140, 10, 0.9); }
+
+        .board-cell:hover {
+            border-color: #fff;
+            transform: scale(1.07);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.9);
+            z-index: 2;
+        }
+
+        .board-cell.selected {
+            box-shadow: 0 0 18px var(--accent-glow), inset 0 0 10px var(--accent-glow);
+            border-color: var(--accent-glow);
+        }
+
+        /* Outside Betting Section */
+        .outside-bets {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+
+        .outside-btn {
+            background: rgba(0, 50, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .outside-btn:hover {
+            background: rgba(0, 100, 0, 0.85);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        }
+
+        .outside-btn.selected {
+            box-shadow: 0 0 18px var(--accent-glow);
+            border-color: var(--accent-glow);
+            background: rgba(160, 130, 0, 0.55);
+        }
+
+        /* Chips Selection Panel */
+        .chips-panel {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        .chip {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 3px dashed #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chip.c-10 { background: #e74c3c; }
+        .chip.c-50 { background: #3498db; }
+        .chip.c-100 { background: #2ecc71; }
+        .chip.c-500 { background: #9b59b6; }
+        .chip.c-1000 { background: #f1c40f; color: #000; }
+
+        .chip:hover {
+            transform: translateY(-5px) scale(1.08);
+            box-shadow: 0 8px 22px rgba(255, 255, 255, 0.7);
+        }
+
+        .chip.active-chip {
+            border-color: var(--accent-glow);
+            transform: scale(1.15);
+            box-shadow: 0 0 25px var(--accent-glow), inset 0 0 12px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Action Controls */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #game-log {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #f0f0ff;
+            text-align: center;
+            min-height: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Regions Sidebar */
+        .regions-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .region-card {
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .region-card.unlocked {
+            background: rgba(0, 255, 136, 0.06);
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+
+        .region-card.active {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 22px rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.09);
+        }
+
+        .region-card.locked {
+            opacity: 0.5;
+            filter: grayscale(80%);
+        }
+
+        /* Modern Glowing Glassmorphism Statistics Dashboard */
+        .stats-dashboard {
+            width: 100%;
+            max-width: 1250px;
+            margin-top: 25px;
+            display: none; /* Appears after 10 spins */
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            animation: fadeInGlow 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeInGlow {
+            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .dashboard-header {
+            text-align: center;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-glow);
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.8), 0 0 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-metric-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 16px 10px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-metric-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            border-color: var(--accent-glow);
+            background: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-metric-card:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .stat-metric-card span {
+            font-size: 0.75rem;
+            color: #b3c2c8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stat-metric-card h3 {
+            font-size: 1.4rem;
+            color: var(--cyan-glow);
+            margin-top: 6px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .stat-metric-card:hover h3 {
+            color: #ffffff;
+            text-shadow: 0 0 15px var(--accent-glow), 0 0 25px #ffffff;
+        }
+
+
+        .statistics-description {
+            padding: 20px;
+            border: 1px solid rgba(85, 246, 255, .25);
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(5, 28, 36, .82), rgba(8, 12, 25, .94));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 22px rgba(0,0,0,.22);
+            color: #dce8ef;
+            line-height: 1.65;
+        }
+        .statistics-description h4 {
+            color: var(--cyan-glow);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .statistics-description p { margin: 8px 0; color: #dce8ef; }
+        .statistics-description strong { color: #ffe4a0; }
+        .statistics-description .stat-note {
+            color: #a9c2cc;
+            font-size: .88rem;
+            border-top: 1px solid rgba(255,255,255,.12);
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+.chart-container:hover {
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.35), inset 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .chart-container h4 {
+            margin-bottom: 12px;
+            color: var(--accent-glow);
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            text-transform: uppercase;
+        }
+
+        canvas.graph-canvas {
+            width: 100%;
+            height: 220px;
+            background: rgba(5, 5, 12, 0.85);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover canvas.graph-canvas {
+            border-color: rgba(0, 243, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ===== NEON ROYALE: FUTURISTIC 3D CASINO UPGRADE ===== */
+        :root {
+            --glass-bg: rgba(7, 13, 25, 0.82);
+            --glass-border: rgba(255, 218, 130, 0.24);
+            --text-color: #f8f7ff;
+            --accent-glow: #f6c75a;
+            --cyan-glow: #55f6ff;
+            --neon-green: #4dffb5;
+            --neon-pink: #ff4fa3;
+            --royal-green: #063c31;
+            --deep-night: #050711;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            isolation: isolate;
+            position: relative;
+            background:
+                radial-gradient(ellipse at 50% -15%, rgba(43, 63, 117, .48), transparent 55%),
+                radial-gradient(ellipse at 50% 110%, rgba(0, 110, 91, .22), transparent 55%),
+                linear-gradient(145deg, #03040a 0%, #080b18 48%, #03050b 100%);
+            padding: clamp(12px, 2vw, 28px);
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(85,246,255,.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(85,246,255,.18) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(to bottom, black, transparent 88%);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.68) 100%);
+        }
+        .bg-glow {
+            opacity: .38;
+            filter: blur(145px);
+            mix-blend-mode: screen;
+        }
+        header {
+            width: min(100%, 1250px);
+            padding: 26px 16px 22px;
+            position: relative;
+            perspective: 900px;
+        }
+        header::before {
+            content: "♠  ♦  ♣  ♥";
+            display: block;
+            color: rgba(246,199,90,.78);
+            font-size: 1rem;
+            letter-spacing: 1.1rem;
+            margin-bottom: 12px;
+            text-shadow: 0 0 18px rgba(246,199,90,.55);
+        }
+        h1 {
+            font-size: clamp(1.65rem, 4vw, 3.25rem);
+            line-height: 1.12;
+            letter-spacing: clamp(1px, .45vw, 5px);
+            color: #ffe7a0;
+            background: linear-gradient(180deg, #fff8d8 5%, #f6c75a 45%, #b8791b 85%, #fff0b3 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 5px 0 rgba(90,49,6,.75)) drop-shadow(0 0 20px rgba(246,199,90,.34));
+            transform: perspective(600px) rotateX(5deg);
+        }
+        header p {
+            color: #b9c8e4;
+            letter-spacing: .04em;
+            line-height: 1.6;
+        }
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(18,26,45,.91), rgba(5,9,19,.86));
+            border: 1px solid rgba(246,199,90,.25);
+            border-top-color: rgba(255,255,255,.24);
+            border-radius: 20px;
+            box-shadow:
+                0 22px 45px rgba(0,0,0,.52),
+                0 7px 0 rgba(2,4,10,.8),
+                inset 0 1px 0 rgba(255,255,255,.11),
+                inset 0 -1px 0 rgba(246,199,90,.09);
+            transform: translateZ(0);
+        }
+        .glass-panel:hover {
+            border-color: rgba(85,246,255,.42);
+            box-shadow:
+                0 24px 50px rgba(0,0,0,.58),
+                0 0 26px rgba(85,246,255,.08),
+                inset 0 1px 0 rgba(255,255,255,.14);
+        }
+        .stats-container { width: 100%; max-width: 1250px; gap: 16px; }
+        .stat-card {
+            min-width: min(170px, 100%);
+            flex: 1;
+            transition: transform .25s ease, border-color .25s ease;
+        }
+        .stat-card:hover { transform: translateY(-5px) rotateX(3deg); }
+        .stat-card > div:first-child {
+            color: #aebbd3;
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .13em;
+        }
+        .stat-value {
+            margin-top: 8px;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 16px rgba(77,255,181,.42);
+        }
+        .game-layout { align-items: start; perspective: 1400px; }
+        #main-table-panel {
+            background:
+                radial-gradient(ellipse at 50% 5%, rgba(18,95,76,.2), transparent 58%),
+                linear-gradient(145deg, rgba(9,23,29,.96), rgba(5,9,18,.96));
+            border-color: rgba(246,199,90,.34);
+        }
+        .wheel-container-wrapper { padding: 14px 0 20px; perspective: 1000px; }
+        .wheel-container {
+            width: clamp(245px, 34vw, 350px);
+            height: auto;
+            aspect-ratio: 1;
+            padding: 8px;
+            overflow: visible;
+            border: 2px solid #ffe4a0;
+            background: linear-gradient(145deg, #f6d779 0%, #98651c 24%, #25180a 52%, #f4ca61 76%, #70440d 100%);
+            box-shadow:
+                0 17px 0 #38230c,
+                0 22px 0 #17100a,
+                0 28px 35px rgba(0,0,0,.72),
+                0 0 30px rgba(246,199,90,.38),
+                inset 0 2px 5px rgba(255,255,255,.8);
+            transform: rotateX(7deg);
+            transition: box-shadow .3s ease, transform .3s ease;
+        }
+        .wheel-container:hover { transform: rotateX(4deg) translateY(-3px); }
+        .wheel-container.spinning-glow {
+            box-shadow: 0 17px 0 #38230c, 0 22px 0 #17100a,
+                0 0 35px var(--cyan-glow), 0 0 75px rgba(246,199,90,.75),
+                inset 0 0 30px var(--cyan-glow);
+        }
+        #roulette-canvas {
+            display: block;
+            border: 4px solid #e8c45f;
+            box-shadow: inset 0 0 18px #000, 0 0 0 3px rgba(30,18,4,.9);
+        }
+        .wheel-pin {
+            width: 43px;
+            height: 43px;
+            border: 3px solid #fff1b8;
+            background: radial-gradient(circle at 30% 25%, #fff 0%, #ffe8a0 22%, #d9a52e 52%, #69430c 78%, #241505 100%);
+            box-shadow: 0 0 0 5px rgba(22,13,2,.9), 0 0 25px rgba(255,226,137,.9), inset 0 2px 5px white;
+        }
+        .pointer-arrow {
+            border-top-color: #ff4f65;
+            filter: drop-shadow(0 0 5px #ff4057) drop-shadow(0 4px 0 #620b1b);
+        }
+        .betting-grid {
+            background: linear-gradient(145deg, rgba(5,72,53,.97), rgba(2,28,24,.98));
+            border: 2px solid #d9b557;
+            border-radius: 14px;
+            box-shadow: 0 9px 0 #07130f, 0 15px 25px rgba(0,0,0,.35), inset 0 0 25px rgba(0,0,0,.8);
+            gap: 5px;
+        }
+        .board-cell {
+            min-height: 42px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, rgba(16,24,32,.98), rgba(3,7,12,.98));
+            border: 1px solid rgba(255,255,255,.2);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 3px 0 rgba(0,0,0,.55);
+            text-shadow: 0 1px 2px #000;
+        }
+        .board-cell.red { background: linear-gradient(145deg, #df3448, #74101e); }
+        .board-cell.black { background: linear-gradient(145deg, #303847, #080a10); }
+        .board-cell.green { background: linear-gradient(145deg, #1ebc83, #075039); }
+        .board-cell:hover { transform: translateY(-3px) scale(1.04); }
+        .board-cell.selected { outline: 2px solid var(--accent-glow); }
+        .outside-btn {
+            background: linear-gradient(145deg, #0d6248, #05291f);
+            border: 1px solid rgba(246,199,90,.34);
+            box-shadow: 0 4px 0 #03140f, 0 8px 14px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.12);
+            padding: 12px 5px;
+        }
+        .outside-btn:hover { transform: translateY(-3px); background: linear-gradient(145deg, #168c67, #064531); }
+        .outside-btn.selected { color: #fff0bd; }
+        .chips-panel { gap: clamp(8px, 1.2vw, 14px); flex-wrap: wrap; padding: 8px 0; }
+        .chip {
+            border: 3px dashed rgba(255,255,255,.9);
+            outline: 2px solid rgba(0,0,0,.7);
+            box-shadow: 0 6px 0 rgba(0,0,0,.65), 0 10px 16px rgba(0,0,0,.4), inset 0 2px 4px rgba(255,255,255,.35);
+            text-shadow: 0 1px 3px rgba(0,0,0,.8);
+        }
+        .chip.c-10 { background: radial-gradient(circle at 30% 25%, #ff9b8f, #c62828 62%, #5b1010); }
+        .chip.c-50 { background: radial-gradient(circle at 30% 25%, #a6e8ff, #167bb4 62%, #073453); }
+        .chip.c-100 { background: radial-gradient(circle at 30% 25%, #a2ffd1, #128956 62%, #064027); }
+        .chip.c-500 { background: radial-gradient(circle at 30% 25%, #e4b7ff, #7937a7 62%, #321047); }
+        .chip.c-1000 { background: radial-gradient(circle at 30% 25%, #fff4a6, #d29a0d 62%, #6b4200); }
+        .chip:hover { transform: translateY(-5px) scale(1.07); }
+        .chip.active-chip { transform: translateY(-4px) scale(1.1); }
+        .interactive-btn {
+            border: 1px solid rgba(255,239,190,.85);
+            border-radius: 10px;
+            background: linear-gradient(145deg, #fff0a8 0%, #e0ad38 45%, #8b5a12 100%);
+            color: #1a1002;
+            box-shadow: 0 5px 0 #5c3a0b, 0 10px 18px rgba(0,0,0,.38), inset 0 1px 0 #fff8d8;
+        }
+        .interactive-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #5c3a0b, 0 14px 25px rgba(0,0,0,.42), 0 0 22px rgba(246,199,90,.3);
+        }
+        .interactive-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #5c3a0b; }
+        #game-log {
+            color: #e9f5ff;
+            line-height: 1.5;
+            padding: 8px 10px;
+            border: 1px solid rgba(85,246,255,.15);
+            border-radius: 10px;
+            background: rgba(2,7,16,.58);
+        }
+        .regions-sidebar > h3 {
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            font-size: 1rem;
+        }
+        .region-card {
+            background: linear-gradient(145deg, rgba(21,30,49,.92), rgba(5,9,19,.9));
+            box-shadow: 0 8px 0 rgba(0,0,0,.28), 0 14px 24px rgba(0,0,0,.22);
+        }
+        .region-card h4 { color: #fff0bc; letter-spacing: .04em; }
+        .region-card.active { transform: translateY(-2px); }
+        .stats-dashboard { background: linear-gradient(145deg, rgba(12,19,36,.96), rgba(4,7,15,.97)); }
+        .stat-metric-card {
+            background: linear-gradient(145deg, rgba(30,42,65,.65), rgba(6,10,21,.88));
+            box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 12px 20px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .chart-container { background: linear-gradient(145deg, rgba(12,19,36,.95), rgba(4,7,15,.95)); }
+.action-row { flex-wrap: wrap; }
+        @media (max-width: 600px) {
+            .glass-panel { padding: 14px; border-radius: 16px; }
+            .game-layout { gap: 16px; }
+            .betting-grid { gap: 3px; padding: 7px; }
+            .board-cell { min-height: 35px; padding: 7px 1px; font-size: .78rem; }
+            .outside-bets { grid-template-columns: repeat(3, 1fr); }
+            .action-row { justify-content: center; }
+            #game-log { order: -1; flex-basis: 100%; }
+            .interactive-btn { padding: 11px 15px; }
+            .wheel-container-wrapper { padding-top: 8px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background Moving Lights -->
+    <div class="bg-glow"></div>
+    <div class="bg-glow"></div>
+
+    <header>
+        <h1>GRAND CASINO ROULETTE</h1>
+        <p>Authentic shining roulette with live pointer arrow and worldwide casino unlocks.</p>
+    </header>
+
+    <div class="stats-container">
+        <div class="glass-panel stat-card" onclick="triggerShine(this)">
+            <div>Bankroll</div>
+            <div class="stat-value" id="bankroll">$1,000</div>
+        </div>
+        <div class="glass-panel stat-card" onclick="triggerShine(this)">
+            <div>Current Bet</div>
+            <div class="stat-value" id="total-bet" style="color: #f1c40f; text-shadow: 0 0 8px rgba(241,196,15,0.6);">$0</div>
+        </div>
+        <div class="glass-panel stat-card" onclick="triggerShine(this)">
+            <div>Active Region</div>
+            <div class="stat-value" id="current-region" style="font-size: 1.1rem; color: var(--accent-glow); text-shadow: 0 0 8px rgba(212,175,55,0.6);">Macau Lounge</div>
+        </div>
+    </div>
+
+    <div class="game-layout">
+        <!-- Main Roulette Table & Wheel Area -->
+        <div class="glass-panel table-area" id="main-table-panel">
+            
+            <!-- Wheel Container with Live Red Indicator Pointer Arrow -->
+            <div class="wheel-container-wrapper">
+                <div class="pointer-arrow"></div>
+                <div class="wheel-container" id="wheel-box" onclick="triggerShine(this)">
+                    <canvas id="roulette-canvas" width="320" height="320"></canvas>
+                    <div class="wheel-pin"></div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: #ddd; text-align: center;">The red pointer arrow at the top marks the winning pocket! Click chips and table cells to shine.</p>
+
+            <!-- Chip Selectors -->
+            <div class="chips-panel">
+                <div class="chip c-10 active-chip" onclick="selectChip(10, this)">$10</div>
+                <div class="chip c-50" onclick="selectChip(50, this)">$50</div>
+                <div class="chip c-100" onclick="selectChip(100, this)">$100</div>
+                <div class="chip c-500" onclick="selectChip(500, this)">$500</div>
+                <div class="chip c-1000" onclick="selectChip(1000, this)">$1k</div>
+            </div>
+
+            <!-- European Roulette Betting Board (0 to 36) -->
+            <div class="betting-grid" id="betting-board">
+                <!-- Populated via JavaScript -->
+            </div>
+
+            <!-- Outside Bets -->
+            <div class="outside-bets">
+                <div class="outside-btn" onclick="placeOutsideBet('1-18', '1-18', this)">1-18 (2x)</div>
+                <div class="outside-btn" onclick="placeOutsideBet('even', 'Even', this)">EVEN (2x)</div>
+                <div class="outside-btn" onclick="placeOutsideBet('red', 'Red', this)">RED (2x)</div>
+                <div class="outside-btn" onclick="placeOutsideBet('black', 'Black', this)">BLACK (2x)</div>
+                <div class="outside-btn" onclick="placeOutsideBet('odd', 'Odd', this)">ODD (2x)</div>
+                <div class="outside-btn" onclick="placeOutsideBet('19-36', '19-36', this)">19-36 (2x)</div>
+            </div>
+
+            <div class="action-row">
+                <button class="interactive-btn" style="background: rgba(255,255,255,0.18); color:#fff;" onclick="clearBets(this)">Clear Bets</button>
+                <div id="game-log">Place your bets and spin the wheel!</div>
+                <button class="interactive-btn" onclick="spinWheel(this)">SPIN WHEEL</button>
+            </div>
+
+        </div>
+
+        <!-- Regions Unlocks Sidebar -->
+        <div class="regions-sidebar">
+            <h3 style="margin-bottom: 5px; color: var(--accent-glow); text-shadow: 0 0 8px rgba(212,175,55,0.5);">Global High-Stakes</h3>
+            
+            <div class="glass-panel region-card unlocked active" id="reg-macau" onclick="triggerShine(this)">
+                <h4>Macau Lounge</h4>
+                <p style="font-size: 0.85rem; color: #ccc;">Requirement: $0</p>
+                <p style="font-size: 0.85rem; color: #00ff88; text-shadow: 0 0 6px rgba(0,255,136,0.5);">Status: Unlocked (Active)</p>
+            </div>
+
+            <div class="glass-panel region-card locked" id="reg-vegas" onclick="triggerShine(this)">
+                <h4>Las Vegas Strip</h4>
+                <p style="font-size: 0.85rem; color: #ccc;">Requirement: $10,000</p>
+                <p style="font-size: 0.85rem; color: #ff5555;" id="vegas-status">Status: Locked</p>
+                <button class="interactive-btn" style="margin-top: 8px; width: 100%; font-size: 0.8rem; padding: 8px;" onclick="switchRegion('vegas', 10000, event)">Travel</button>
+            </div>
+
+            <div class="glass-panel region-card locked" id="reg-britain" onclick="triggerShine(this)">
+                <h4>London High-Stakes</h4>
+                <p style="font-size: 0.85rem; color: #ccc;">Requirement: $1,000,000</p>
+                <p style="font-size: 0.85rem; color: #ff5555;" id="britain-status">Status: Locked</p>
+                <button class="interactive-btn" style="margin-top: 8px; width: 100%; font-size: 0.8rem; padding: 8px;" onclick="switchRegion('britain', 1000000, event)">Travel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spin Statistics & Written Interpretation (Activates after 10 spins) -->
+    <div class="glass-panel stats-dashboard" id="stats-dashboard">
+        <h3 class="dashboard-header">Spin Statistics & Analytics</h3>
+        
+        <div class="stats-grid">
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Mean</span>
+                <h3 id="stat-mean">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Median</span>
+                <h3 id="stat-median">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Mode</span>
+                <h3 id="stat-mode">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Range</span>
+                <h3 id="stat-range">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Mean Dev</span>
+                <h3 id="stat-meandev">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Std Dev</span>
+                <h3 id="stat-stddev">-</h3>
+            </div>
+            <div class="stat-metric-card" onclick="triggerShine(this)">
+                <span>Variance</span>
+                <h3 id="stat-variance">-</h3>
+            </div>
+        </div>
+        <div class="statistics-description" id="statistics-description" aria-live="polite">
+            <h4>Understanding the Results</h4>
+            <p>Complete at least 10 spins to see a summary of the roulette results. These statistics describe past spins only and cannot predict the next result.</p>
+        </div>
+    </div>
+
+    <script>
+        function triggerShine(element) {
+            element.classList.add('shine-burst');
+            setTimeout(() => {
+                element.classList.remove('shine-burst');
+            }, 400);
+        }
+
+        let bankroll = 1000;
+        let selectedChipValue = 10;
+        let activeBets = {}; 
+        let totalCurrentBet = 0;
+        let isSpinning = false;
+        let activeRegion = 'Macau Lounge';
+
+        // Analytics Data Array
+        let spinHistory = [];
+
+        const wheelNumbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+        const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+
+        const board = document.getElementById('betting-board');
+        
+        let zeroDiv = document.createElement('div');
+        zeroDiv.className = 'board-cell green';
+        zeroDiv.style.gridRow = "span 3";
+        zeroDiv.style.display = "flex";
+        zeroDiv.style.alignItems = "center";
+        zeroDiv.style.justifyContent = "center";
+        zeroDiv.innerHTML = '0<br><span id="bet-0" style="font-size:0.7rem; color:#f1c40f; text-shadow:0 0 5px #f1c40f;"></span>';
+        zeroDiv.onclick = (e) => { triggerShine(zeroDiv); placeNumberBet(0); };
+        board.appendChild(zeroDiv);
+
+        for (let row = 2; row >= 0; row--) {
+            for (let i = 1; i <= 12; i++) {
+                let num = i * 3 - row;
+                let colorClass = num === 0 ? 'green' : (redNumbers.includes(num) ? 'red' : 'black');
+                let cell = document.createElement('div');
+                cell.className = `board-cell ${colorClass}`;
+                cell.innerHTML = `${num}<br><span id="bet-${num}" style="font-size:0.7rem; color:#f1c40f; text-shadow:0 0 5px #f1c40f;"></span>`;
+                cell.onclick = (e) => { triggerShine(cell); placeNumberBet(num); };
+                board.appendChild(cell);
+            }
+        }
+
+        function selectChip(val, element) {
+            triggerShine(element);
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
+            element.classList.add('active-chip');
+            selectedChipValue = val;
+        }
+
+        function placeNumberBet(num) {
+            if (isSpinning) return;
+            if (bankroll < selectedChipValue) {
+                document.getElementById('game-log').innerText = "Not enough funds for this chip amount!";
+                return;
+            }
+
+            bankroll -= selectedChipValue;
+            totalCurrentBet += selectedChipValue;
+            
+            if (!activeBets[num]) activeBets[num] = 0;
+            activeBets[num] += selectedChipValue;
+
+            document.getElementById(`bet-${num}`).innerText = `$${activeBets[num]}`;
+            updateUI();
+        }
+
+        function placeOutsideBet(key, label, element) {
+            triggerShine(element);
+            if (isSpinning) return;
+            if (bankroll < selectedChipValue) {
+                document.getElementById('game-log').innerText = "Not enough funds for this chip amount!";
+                return;
+            }
+
+            bankroll -= selectedChipValue;
+            totalCurrentBet += selectedChipValue;
+
+            if (!activeBets[key]) activeBets[key] = 0;
+            activeBets[key] += selectedChipValue;
+
+            document.getElementById('game-log').innerText = `Placed $${activeBets[key]} on ${label}`;
+            updateUI();
+        }
+
+        function clearBets(element) {
+            triggerShine(element);
+            if (isSpinning) return;
+            bankroll += totalCurrentBet;
+            activeBets = {};
+            totalCurrentBet = 0;
+            
+            for (let i = 0; i <= 36; i++) {
+                let badge = document.getElementById(`bet-${i}`);
+                if (badge) badge.innerText = '';
+            }
+            document.getElementById('game-log').innerText = "Bets cleared.";
+            updateUI();
+        }
+
+        const canvas = document.getElementById('roulette-canvas');
+        const ctx = canvas.getContext('2d');
+        let currentAngle = 0;
+
+        function drawWheel(angle = 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let center = canvas.width / 2;
+            let radius = center - 8;
+            let sliceAngle = (2 * Math.PI) / wheelNumbers.length;
+
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle);
+
+            for (let i = 0; i < wheelNumbers.length; i++) {
+                let num = wheelNumbers[i];
+                let startAngle = i * sliceAngle;
+                let endAngle = (i + 1) * sliceAngle;
+
+                let fillColor = '#111';
+                if (num === 0) fillColor = '#1b9a1b';
+                else if (redNumbers.includes(num)) fillColor = '#cc1818';
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+                ctx.strokeStyle = '#444';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(num, radius - 12, 4);
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 45, 0, 2 * Math.PI);
+            ctx.fillStyle = '#111';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#d4af37';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        drawWheel(0);
+
+        function spinWheel(element) {
+            triggerShine(element);
+            if (isSpinning) return;
+            if (totalCurrentBet === 0) {
+                document.getElementById('game-log').innerText = "Please place at least one bet before spinning!";
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('wheel-box').classList.add('spinning-glow');
+            document.getElementById('game-log').innerText = "Wheel is spinning under the pointer arrow...";
+
+            let winningIndex = Math.floor(Math.random() * wheelNumbers.length);
+            let winningNumber = wheelNumbers[winningIndex];
+
+            let sliceAngle = (2 * Math.PI) / wheelNumbers.length;
+            let targetAngle = -Math.PI / 2 - (winningIndex * sliceAngle + sliceAngle / 2);
+            let extraSpins = 6 * 2 * Math.PI; 
+            let totalRotation = currentAngle + extraSpins + (targetAngle - (currentAngle % (2 * Math.PI)));
+
+            let startTime = null;
+            let duration = 4000; 
+
+            function animateSpin(timestamp) {
+                if (!startTime) startTime = timestamp;
+                let progress = timestamp - startTime;
+                let percent = Math.min(progress / duration, 1);
+                
+                let easeOut = 1 - Math.pow(1 - percent, 3);
+                let currentDrawAngle = currentAngle + (totalRotation - currentAngle) * easeOut;
+
+                drawWheel(currentDrawAngle);
+
+                if (percent < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    currentAngle = totalRotation;
+                    isSpinning = false;
+                    document.getElementById('wheel-box').classList.remove('spinning-glow');
+                    evaluateWin(winningNumber);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function evaluateWin(roll) {
+            let color = roll === 0 ? 'green' : (redNumbers.includes(roll) ? 'red' : 'black');
+            let totalPayout = 0;
+
+            if (activeBets[roll]) {
+                totalPayout += activeBets[roll] * 36; 
+            }
+
+            if (color === 'red' && activeBets['red']) totalPayout += activeBets['red'] * 2;
+            if (color === 'black' && activeBets['black']) totalPayout += activeBets['black'] * 2;
+            if (roll !== 0) {
+                if (roll % 2 === 0 && activeBets['even']) totalPayout += activeBets['even'] * 2;
+                if (roll % 2 !== 0 && activeBets['odd']) totalPayout += activeBets['odd'] * 2;
+                if (roll >= 1 && roll <= 18 && activeBets['1-18']) totalPayout += activeBets['1-18'] * 2;
+                if (roll >= 19 && roll <= 36 && activeBets['19-36']) totalPayout += activeBets['19-36'] * 2;
+            }
+
+            if (totalPayout > 0) {
+                bankroll += totalPayout;
+                document.getElementById('game-log').innerText = `✨ Pinned by Arrow! Roll: ${roll} (${color.toUpperCase()}) — YOU WON $${totalPayout}! ✨`;
+                triggerShine(document.getElementById('main-table-panel'));
+            } else {
+                document.getElementById('game-log').innerText = `Arrow stopped at ${roll} (${color.toUpperCase()}). House takes the bet.`;
+            }
+
+            activeBets = {};
+            totalCurrentBet = 0;
+            document.querySelectorAll('.outside-btn, .board-cell').forEach(el => el.classList.remove('selected'));
+            for (let i = 0; i <= 36; i++) {
+                let badge = document.getElementById(`bet-${i}`);
+                if (badge) badge.innerText = '';
+            }
+
+            // Record spin for statistics
+            spinHistory.push(roll);
+            if (spinHistory.length >= 10) {
+                const dashboard = document.getElementById('stats-dashboard');
+                dashboard.style.display = 'flex';
+                triggerShine(dashboard);
+                updateStatistics();
+            }
+
+            checkUnlocks();
+            updateUI();
+        }
+
+        function updateStatistics() {
+            const n = spinHistory.length;
+            
+            // 1. Mean
+            const sum = spinHistory.reduce((acc, val) => acc + val, 0);
+            const mean = sum / n;
+
+            // 2. Median
+            const sorted = [...spinHistory].sort((a, b) => a - b);
+            let median;
+            const mid = Math.floor(n / 2);
+            if (n % 2 === 0) {
+                median = (sorted[mid - 1] + sorted[mid]) / 2;
+            } else {
+                median = sorted[mid];
+            }
+
+            // 3. Mode
+            const counts = {};
+            let maxFreq = 0;
+            let modes = [];
+            spinHistory.forEach(num => {
+                counts[num] = (counts[num] || 0) + 1;
+                if (counts[num] > maxFreq) {
+                    maxFreq = counts[num];
+                    modes = [num];
+                } else if (counts[num] === maxFreq) {
+                    if (!modes.includes(num)) modes.push(num);
+                }
+            });
+            const modeStr = modes.length === n ? 'None' : modes.join(', ');
+
+            // 4. Range
+            const min = sorted[0];
+            const max = sorted[n - 1];
+            const range = max - min;
+
+            // 5. Variance & Standard Deviation
+            const squaredDiffsSum = spinHistory.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+            const variance = squaredDiffsSum / n;
+            const stdDev = Math.sqrt(variance);
+
+            // 6. Mean Deviation
+            const absoluteDevSum = spinHistory.reduce((acc, val) => acc + Math.abs(val - mean), 0);
+            const meanDev = absoluteDevSum / n;
+
+            // Update DOM Elements
+            document.getElementById('stat-mean').innerText = mean.toFixed(2);
+            document.getElementById('stat-median').innerText = median;
+            document.getElementById('stat-mode').innerText = modeStr;
+            document.getElementById('stat-range').innerText = range;
+            document.getElementById('stat-meandev').innerText = meanDev.toFixed(2);
+            document.getElementById('stat-stddev').innerText = stdDev.toFixed(2);
+            document.getElementById('stat-variance').innerText = variance.toFixed(2);
+            // Refresh the written interpretation whenever new spin data is available.
+            updateStatisticsDescription({ n, mean, median, modeStr, range, meanDev, stdDev, variance, counts });
+        }
+
+        function updateStatisticsDescription(stats) {
+            const { n, mean, median, modeStr, range, meanDev, stdDev, variance, counts } = stats;
+            const redCount = spinHistory.filter(num => redNumbers.includes(num)).length;
+            const blackCount = spinHistory.filter(num => num !== 0 && !redNumbers.includes(num)).length;
+            const zeroCount = spinHistory.filter(num => num === 0).length;
+            const percent = count => ((count / n) * 100).toFixed(1);
+            const modeExplanation = modeStr === "None"
+                ? "No single number occurred more often than all the others."
+                : `The most frequent result${modeStr.includes(",") ? "s are" : " is"} <strong>${modeStr}</strong>. Each appeared ${counts[modeStr.split(", ")[0]] || 0} time(s) at the highest frequency.`;
+            const variability = stdDev < 8
+                ? "The results in this sample are relatively close to the average."
+                : stdDev < 11
+                    ? "The results show a moderate spread around the average."
+                    : "The results are widely spread around the average in this sample.";
+            document.getElementById("statistics-description").innerHTML = `
+                <h4>What the Statistics Mean</h4>
+                <p><strong>Mean (${mean.toFixed(2)}):</strong> The average of the ${n} numbers spun so far. It gives the overall average result in this sample.</p>
+                <p><strong>Median (${median}):</strong> The middle value after sorting all recorded results from lowest to highest. Half the results are at or below it and half are at or above it.</p>
+                <p><strong>Mode (${modeStr}):</strong> ${modeExplanation}</p>
+                <p><strong>Range (${range}):</strong> The difference between the highest result (${Math.max(...spinHistory)}) and the lowest result (${Math.min(...spinHistory)}). A larger range means the sample covers a wider span of numbers.</p>
+                <p><strong>Mean deviation (${meanDev.toFixed(2)}):</strong> The average distance of each result from the mean. Lower values mean results were closer to the average in this sample.</p>
+                <p><strong>Standard deviation (${stdDev.toFixed(2)}) and variance (${variance.toFixed(2)}):</strong> These describe how spread out the results are. ${variability} Variance is expressed in squared units, while standard deviation uses the original number scale.</p>
+                <p><strong>Color breakdown:</strong> Red ${redCount} (${percent(redCount)}%), black ${blackCount} (${percent(blackCount)}%), and green 0 ${zeroCount} (${percent(zeroCount)}%) across the recorded spins.</p>
+                <p class="stat-note">Important: This is a description of past results, not a prediction. Each roulette spin is independent, so these statistics do not guarantee what will happen on the next spin. This game uses virtual credits only.</p>
+            `;
+        }
+
+
+        function checkUnlocks() {
+            if (bankroll >= 10000) {
+                let vegasCard = document.getElementById('reg-vegas');
+                vegasCard.classList.remove('locked');
+                vegasCard.classList.add('unlocked');
+                document.getElementById('vegas-status').innerText = "Status: Unlocked";
+                document.getElementById('vegas-status').style.color = "#00ff88";
+            }
+            if (bankroll >= 1000000) {
+                let britainCard = document.getElementById('reg-britain');
+                britainCard.classList.remove('locked');
+                britainCard.classList.add('unlocked');
+                document.getElementById('britain-status').innerText = "Status: Unlocked";
+                document.getElementById('britain-status').style.color = "#00ff88";
+            }
+        }
+
+        function switchRegion(region, requirement, event) {
+            event.stopPropagation();
+            if (bankroll < requirement) {
+                alert(`You need at least $${requirement.toLocaleString()} to unlock this region!`);
+                return;
+            }
+
+            document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active'));
+            
+            if (region === 'vegas') {
+                document.getElementById('reg-vegas').classList.add('active');
+                activeRegion = 'Las Vegas Strip';
+            } else if (region === 'britain') {
+                document.getElementById('reg-britain').classList.add('active');
+                activeRegion = 'London High-Stakes';
+            }
+            
+            document.getElementById('current-region').innerText = activeRegion;
+            document.getElementById('game-log').innerText = `Welcome to ${activeRegion}! High-roller tables are live.`;
+            triggerShine(document.getElementById('main-table-panel'));
+        }
+
+        function updateUI() {
+            document.getElementById('bankroll').innerText = `$${bankroll.toLocaleString()}`;
+            document.getElementById('total-bet').innerText = `$${totalCurrentBet.toLocaleString()}`;
+        }
+    </script>
+</body>
+</html>
